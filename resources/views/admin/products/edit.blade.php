@@ -20,6 +20,23 @@
                 @endif
                 <span class="help-block">{{ trans('cruds.product.fields.name_helper') }}</span>
             </div>
+
+            <div class="form-group">
+                <label for="description">Is product active</label>
+            <SELECT name="active" class="form-control brand" required="required">
+            <option value="1" {{ ( $product->active == '1') ? 'selected' : '' }}> Yes </option>
+            <option value="0" {{ ( $product->active == '0') ? 'selected' : '' }}> No </option>
+			</SELECT>
+</div>
+
+<div class="form-group">
+                <label for="description">Is it a variable product</label>
+            <SELECT name="varied" class="form-control brand" required="required">
+            <option value="1" {{ ( $product->varied == '1') ? 'selected' : '' }}> Yes </option>
+            <option value="0" {{ ( $product->varied == '0') ? 'selected' : '' }}> No </option>
+				</SELECT>
+</div>
+
             <div class="form-group">
                 <label for="description">{{ trans('cruds.product.fields.description') }}</label>
                 <textarea class="form-control {{ $errors->has('description') ? 'is-invalid' : '' }}" name="description" id="description">{{ old('description', $product->description) }}</textarea>
@@ -98,6 +115,52 @@
                 @endif
                 <span class="help-block">{{ trans('cruds.product.fields.multi_photos_helper') }}</span>
             </div>
+
+
+            <div class="form-group">
+<INPUT type="button" class="btn btn-success" value="Add Row" onclick="addRow('dataTable')" />
+
+<INPUT type="button" class="btn btn-danger" value="Delete Row" onclick="deleteRow('dataTable')" />
+<table  style="margin:10px;width:100%;">
+	<tr>
+		<td >Action</td>
+		<td style="text-align:center;width:650px;">Variation</td>
+		<th style="text-align:center;width:650px;">Price</th>
+		</tr>
+</table>
+
+<TABLE  style="margin:10px;width:100%;">
+@foreach($product->productProductVariations as $productProductVariation)
+		<TR>
+        <TD><INPUT type="checkbox" name="chk"/></TD>
+			<TD style="width:650px;text-align:center;">
+				<SELECT name="variations[]" class="form-control brand" required="required">
+                @foreach($variations as $variation)
+                <option value="{{ $variation->id }}" {{ ( $variation->id == $productProductVariation->variation_id) ? 'selected' : '' }}> {{ $variation->name }} </option>
+            @endforeach
+				</SELECT>
+			</TD>
+            <TD style="width:650px"><INPUT type="number" value="{{$productProductVariation->price}}" name="prices[]" class="form-control productprice"/></TD>
+		</TR>
+        @endforeach
+	</TABLE>
+
+	@csrf
+	<TABLE id="dataTable"  style="margin:10px;width:100%;">
+		<TR>
+        <TD><INPUT type="checkbox" name="chk"/></TD>
+			<TD style="width:650px;text-align:center;">
+				<SELECT name="variations[]" class="form-control brand" required="required">
+                <option>Select product Variation</option>
+                @foreach($variations as $variation)
+					<OPTION value="{{$variation->id}}">{{$variation->name}}</OPTION>
+                @endforeach
+				</SELECT>
+			</TD>
+            <TD style="width:650px"><INPUT type="number" name="prices[]" class="form-control productprice"/></TD>
+		</TR>
+	</TABLE>
+</div>
             <div class="form-group">
                 <button class="btn btn-danger" type="submit">
                     {{ trans('global.save') }}
@@ -226,6 +289,63 @@ Dropzone.options.multiPhotosDropzone = {
          return _results
      }
 }
-
 </script>
+
+
+<script language="javascript">
+		function addRow(tableID) {
+
+			var table = document.getElementById(tableID);
+
+			var rowCount = table.rows.length;
+			var row = table.insertRow(rowCount);
+
+			var colCount = table.rows[0].cells.length;
+
+			for(var i=0; i<colCount; i++) {
+
+				var newcell	= row.insertCell(i);
+
+				newcell.innerHTML = table.rows[0].cells[i].innerHTML;
+				//alert(newcell.childNodes);
+				switch(newcell.childNodes[0].type) {
+					case "text":
+							newcell.childNodes[0].value = "";
+							break;
+					case "checkbox":
+							newcell.childNodes[0].checked = false;
+							break;
+					case "select-one":
+							newcell.childNodes[0].selectedIndex = 0;
+							break;
+				}
+			}
+		}
+
+		function deleteRow(tableID) {
+			try {
+			var table = document.getElementById(tableID);
+			var rowCount = table.rows.length;
+
+			for(var i=0; i<rowCount; i++) {
+				var row = table.rows[i];
+				var chkbox = row.cells[0].childNodes[0];
+				if(null != chkbox && true == chkbox.checked) {
+					if(rowCount <= 1) {
+						alert("Cannot delete all the rows.");
+						break;
+					}
+					table.deleteRow(i);
+					rowCount--;
+					i--;
+				}
+
+
+			}
+			}catch(e) {
+				alert(e);
+			}
+		}
+
+	</script>
 @endsection

@@ -12,15 +12,20 @@ use Gate;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use App\Http\Controllers\Traits\MediaUploadingTrait;
 
 class UsersController extends Controller
 {
+    use MediaUploadingTrait;
+
     public function index(Request $request)
     {
         abort_if(Gate::denies('user_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-
+        
         if ($request->ajax()) {
             $query = User::with(['roles'])->select(sprintf('%s.*', (new User())->table));
+            
             $table = Datatables::of($query);
 
             $table->addColumn('placeholder', '&nbsp;');
@@ -59,7 +64,17 @@ class UsersController extends Controller
 
                 return implode(' ', $labels);
             });
+            $table->editColumn('profileimage', function ($row) {
+                if ($profileimage = $row->profileimage) {
+                    return sprintf(
+        '<a href="%s" target="_blank"><img src="%s" width="50px" height="50px"></a>',
+        $profileimage->url,
+        $profileimage->thumbnail
+    );
+                }
 
+                return '';
+            });
             $table->rawColumns(['actions', 'placeholder', 'roles']);
 
             return $table->make(true);
@@ -81,6 +96,9 @@ class UsersController extends Controller
     {
         $user = User::create($request->all());
         $user->roles()->sync($request->input('roles', []));
+        if ($request->input('profileimage', false)) {
+            $user->addMedia(storage_path('tmp/uploads/' . basename($request->input('profileimage'))))->toMediaCollection('profileimage');
+        }
 
         return redirect()->route('admin.users.index');
     }
@@ -100,7 +118,16 @@ class UsersController extends Controller
     {
         $user->update($request->all());
         $user->roles()->sync($request->input('roles', []));
-
+        if ($request->input('profileimage', false)) {
+            if (!$user->profileimage || $request->input('profileimage') !== $user->profileimage->file_name) {
+                if ($user->profileimage) {
+                    $user->profileimage->delete();
+                }
+                $user->addMedia(storage_path('tmp/uploads/' . basename($request->input('profileimage'))))->toMediaCollection('profileimage');
+            }
+        } elseif ($user->profileimage) {
+            $user->profileimage->delete();
+        }
         return redirect()->route('admin.users.index');
     }
 

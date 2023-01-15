@@ -15,6 +15,9 @@ use Illuminate\Http\Request;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
+use App\Models\Variation;
+use App\Models\ProductVariation;
+use App\Models\SubSubCategory;
 
 class ProductController extends Controller
 {
@@ -110,14 +113,18 @@ class ProductController extends Controller
         abort_if(Gate::denies('product_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $categories = ProductCategory::pluck('name', 'id');
-
+        $subcategories = SubSubCategory::all();
         $tags = ProductTag::pluck('name', 'id');
-
-        return view('admin.products.create', compact('categories', 'tags'));
+        $variations = Variation::all();
+        return view('admin.products.create', compact('categories', 'tags','variations','subcategories'));
     }
 
     public function store(StoreProductRequest $request)
     {
+        //dd(request()->all());
+        $variations=$request->variations;
+        $prices = $request->prices;
+
         $product = Product::create($request->all());
         $product->categories()->sync($request->input('categories', []));
         $product->tags()->sync($request->input('tags', []));
@@ -133,6 +140,16 @@ class ProductController extends Controller
             Media::whereIn('id', $media)->update(['model_id' => $product->id]);
         }
 
+        if($request->varied === '1'){
+        foreach($variations as $a => $b){
+            ProductVariation::create([
+                'product_id'=>$product->id,
+                'variation_id'=>$variations[$a],
+                'price'=>$prices[$a],
+            ]);
+        }
+    }
+
         return redirect()->route('admin.products.index');
     }
 
@@ -141,12 +158,12 @@ class ProductController extends Controller
         abort_if(Gate::denies('product_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $categories = ProductCategory::pluck('name', 'id');
-
+        $variations = Variation::all();
         $tags = ProductTag::pluck('name', 'id');
 
-        $product->load('categories', 'tags');
+        $product->load('categories', 'tags','productProductVariations');
 
-        return view('admin.products.edit', compact('categories', 'product', 'tags'));
+        return view('admin.products.edit', compact('categories', 'product', 'tags','variations'));
     }
 
     public function update(UpdateProductRequest $request, Product $product)
@@ -176,6 +193,17 @@ class ProductController extends Controller
         foreach ($request->input('multi_photos', []) as $file) {
             if (count($media) === 0 || !in_array($file, $media)) {
                 $product->addMedia(storage_path('tmp/uploads/' . basename($file)))->toMediaCollection('multi_photos');
+            }
+        }
+        $variations=$request->variations;
+        $prices = $request->prices;
+        if($request->varied === '1'){
+            foreach($variations as $a => $b){
+                ProductVariation::create([
+                    'product_id'=>$product->id,
+                    'variation_id'=>$variations[$a],
+                    'price'=>$prices[$a],
+                ]);
             }
         }
 

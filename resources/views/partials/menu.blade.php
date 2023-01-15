@@ -101,6 +101,17 @@
                             </a>
                         </li>
                     @endcan
+                    @can('product_brand_access')
+                    <li class="c-sidebar-nav-item">
+                    <a href="{{ route("admin.product-brands.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/product-brands") || request()->is("admin/product-brands/*") ? "c-active" : "" }}">
+                            <i class="fa-fw fas fa-affiliatetheme c-sidebar-nav-icon">
+                            </i>
+                            
+                                {{ trans('cruds.productBrand.title') }}
+                        
+                        </a>
+                    </li>
+                @endcan
                     @can('product_access')
                         <li class="c-sidebar-nav-item">
                             <a href="{{ route("admin.products.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/products") || request()->is("admin/products/*") ? "c-active" : "" }}">
@@ -163,6 +174,17 @@
                     {{ trans('cruds.userAlert.title') }}
                 </a>
             </li>
+        @endcan
+        @can('slider_access')
+                    <li class="c-sidebar-nav-item">
+                        <a href="{{ route("admin.sliders.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/sliders") || request()->is("admin/sliders/*") ? "active" : "" }}">
+                        <i class="fa-fw fas fa-bell c-sidebar-nav-icon">
+                            </i>
+                            
+                                {{ trans('cruds.slider.title') }}
+                            
+                        </a>
+                    </li>
         @endcan
         @if(file_exists(app_path('Http/Controllers/Auth/ChangePasswordController.php')))
             @can('profile_password_edit')

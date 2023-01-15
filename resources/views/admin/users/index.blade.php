@@ -37,6 +37,9 @@
                         {{ trans('cruds.user.fields.roles') }}
                     </th>
                     <th>
+                        {{ trans('cruds.user.fields.profileimage') }}
+                    </th>
+                    <th>
                         &nbsp;
                     </th>
                 </tr>
@@ -97,6 +100,7 @@
 { data: 'email', name: 'email' },
 { data: 'email_verified_at', name: 'email_verified_at' },
 { data: 'roles', name: 'roles.title' },
+{ data: 'profileimage', name: 'profileimage', sortable: false, searchable: false },
 { data: 'actions', name: '{{ trans('global.actions') }}' }
     ],
     orderCellsTop: true,

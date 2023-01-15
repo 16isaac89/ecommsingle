@@ -35,6 +35,9 @@ class Product extends Model implements HasMedia
         'name',
         'description',
         'price',
+        'active',
+        'varied',
+        'sub_sub_category_id',
         'created_at',
         'updated_at',
         'deleted_at',
@@ -54,6 +57,10 @@ class Product extends Model implements HasMedia
     public function categories()
     {
         return $this->belongsToMany(ProductCategory::class);
+    }
+    public function subcategory()
+    {
+        return $this->belongsTo(SubSubCategory::class,'sub_sub_category_id');
     }
 
     public function tags()
@@ -88,5 +95,8 @@ class Product extends Model implements HasMedia
     protected function serializeDate(DateTimeInterface $date)
     {
         return $date->format('Y-m-d H:i:s');
+    }
+    public function brand(){
+        return $this->belongsTo(ProductBrand::class,'brand_id');
     }
 }

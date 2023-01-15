@@ -19,6 +19,16 @@
                 @endif
                 <span class="help-block">{{ trans('cruds.product.fields.name_helper') }}</span>
             </div>
+
+            <div class="form-group">
+                <label for="description">Is it a variable product</label>
+            <SELECT name="varied" class="form-control brand" required="required">
+                <option value="1">Yes</option>
+                <option value="0">No</option>
+				</SELECT>
+</div>
+
+
             <div class="form-group">
                 <label for="description">{{ trans('cruds.product.fields.description') }}</label>
                 <textarea class="form-control {{ $errors->has('description') ? 'is-invalid' : '' }}" name="description" id="description">{{ old('description') }}</textarea>
@@ -39,7 +49,9 @@
                 @endif
                 <span class="help-block">{{ trans('cruds.product.fields.price_helper') }}</span>
             </div>
-            <div class="form-group">
+
+
+            <!-- <div class="form-group">
                 <label class="required" for="categories">{{ trans('cruds.product.fields.category') }}</label>
                 <div style="padding-bottom: 4px">
                     <span class="btn btn-info btn-xs select-all" style="border-radius: 0">{{ trans('global.select_all') }}</span>
@@ -56,7 +68,19 @@
                     </div>
                 @endif
                 <span class="help-block">{{ trans('cruds.product.fields.category_helper') }}</span>
+            </div> -->
+
+
+            <div class="form-group">
+            <label class="required" for="categories">Category</label>
+                <select class="form-control select2" name="sub_sub_category_id" id="subcategory" required>
+                    @foreach($subcategories as $subcategory)
+                        <option value="{{ $subcategory->id }}">{{ $subcategory->name }}</option>
+                    @endforeach
+                </select>
             </div>
+
+
             <div class="form-group">
                 <label for="tags">{{ trans('cruds.product.fields.tag') }}</label>
                 <div style="padding-bottom: 4px">
@@ -97,6 +121,41 @@
                 @endif
                 <span class="help-block">{{ trans('cruds.product.fields.multi_photos_helper') }}</span>
             </div>
+
+            <div class="form-group">
+                <label for="multi_photos">{{ trans('cruds.product.fields.active') }}</label>
+            <select class="form-control" required name="active">
+    <option value="1">Yes</option>
+    <option value="0">No</option>
+</select>
+</div>
+<div class="form-group">
+<INPUT type="button" class="btn btn-success" value="Add Row" onclick="addRow('dataTable')" />
+
+<INPUT type="button" class="btn btn-danger" value="Delete Row" onclick="deleteRow('dataTable')" />
+<table  style="margin:10px;width:100%;">
+	<tr>
+		<td >Action</td>
+		<td style="text-align:center;width:650px;">Variation</td>
+		<th style="text-align:center;width:650px;">Price</th>
+		</tr>
+</table>
+
+	@csrf
+	<TABLE id="dataTable"  style="margin:10px;width:100%;">
+		<TR>
+        <TD><INPUT type="checkbox" name="chk"/></TD>
+			<TD style="width:650px;text-align:center;">
+				<SELECT name="variations[]" class="form-control brand" required="required">
+                @foreach($variations as $variation)
+					<OPTION value="{{$variation->id}}">{{$variation->name}}</OPTION>
+                @endforeach
+				</SELECT>
+			</TD>
+            <TD style="width:650px"><INPUT type="number" name="prices[]" class="form-control productprice"/></TD>
+		</TR>
+	</TABLE>
+</div>
             <div class="form-group">
                 <button class="btn btn-danger" type="submit">
                     {{ trans('global.save') }}
@@ -164,7 +223,6 @@
         return _results
     }
 }
-
 </script>
 <script>
     var uploadedMultiPhotosMap = {}
@@ -227,4 +285,62 @@ Dropzone.options.multiPhotosDropzone = {
 }
 
 </script>
+
+
+<script language="javascript">
+		function addRow(tableID) {
+
+			var table = document.getElementById(tableID);
+
+			var rowCount = table.rows.length;
+			var row = table.insertRow(rowCount);
+
+			var colCount = table.rows[0].cells.length;
+
+			for(var i=0; i<colCount; i++) {
+
+				var newcell	= row.insertCell(i);
+
+				newcell.innerHTML = table.rows[0].cells[i].innerHTML;
+				//alert(newcell.childNodes);
+				switch(newcell.childNodes[0].type) {
+					case "text":
+							newcell.childNodes[0].value = "";
+							break;
+					case "checkbox":
+							newcell.childNodes[0].checked = false;
+							break;
+					case "select-one":
+							newcell.childNodes[0].selectedIndex = 0;
+							break;
+				}
+			}
+		}
+
+		function deleteRow(tableID) {
+			try {
+			var table = document.getElementById(tableID);
+			var rowCount = table.rows.length;
+
+			for(var i=0; i<rowCount; i++) {
+				var row = table.rows[i];
+				var chkbox = row.cells[0].childNodes[0];
+				if(null != chkbox && true == chkbox.checked) {
+					if(rowCount <= 1) {
+						alert("Cannot delete all the rows.");
+						break;
+					}
+					table.deleteRow(i);
+					rowCount--;
+					i--;
+				}
+
+
+			}
+			}catch(e) {
+				alert(e);
+			}
+		}
+
+	</script>
 @endsection

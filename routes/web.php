@@ -23,6 +23,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
 
     // Users
     Route::delete('users/destroy', 'UsersController@massDestroy')->name('users.massDestroy');
+    Route::post('users/media', 'UsersController@storeMedia')->name('users.storeMedia');
     Route::resource('users', 'UsersController');
 
     // Product Category
@@ -40,6 +41,18 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::post('products/media', 'ProductController@storeMedia')->name('products.storeMedia');
     Route::post('products/ckmedia', 'ProductController@storeCKEditorImages')->name('products.storeCKEditorImages');
     Route::resource('products', 'ProductController');
+
+     // Product Brand
+     Route::delete('product-brands/destroy', 'ProductBrandController@massDestroy')->name('product-brands.massDestroy');
+     Route::post('product-brands/parse-csv-import', 'ProductBrandController@parseCsvImport')->name('product-brands.parseCsvImport');
+     Route::post('product-brands/process-csv-import', 'ProductBrandController@processCsvImport')->name('product-brands.processCsvImport');
+     Route::resource('product-brands', 'ProductBrandController');
+
+      // Slider
+    Route::delete('sliders/destroy', 'SliderController@massDestroy')->name('sliders.massDestroy');
+    Route::post('sliders/media', 'SliderController@storeMedia')->name('sliders.storeMedia');
+    Route::post('sliders/ckmedia', 'SliderController@storeCKEditorImages')->name('sliders.storeCKEditorImages');
+    Route::resource('sliders', 'SliderController');
 
     // Audit Logs
     Route::resource('audit-logs', 'AuditLogsController', ['except' => ['create', 'store', 'edit', 'update', 'destroy']]);

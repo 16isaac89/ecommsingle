@@ -24,13 +24,13 @@ class StoreProductRequest extends FormRequest
             'price' => [
                 'required',
             ],
-            'categories.*' => [
-                'integer',
-            ],
-            'categories' => [
-                'required',
-                'array',
-            ],
+            // 'categories.*' => [
+            //     'integer',
+            // ],
+            // 'categories' => [
+            //     'required',
+            //     'array',
+            // ],
             'tags.*' => [
                 'integer',
             ],
